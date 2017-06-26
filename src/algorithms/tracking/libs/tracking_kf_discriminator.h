@@ -2,7 +2,7 @@
  * \file tracking_kf_discriminator.h
  * \brief Interface of a library with tracking.
  * \authors <ul>
- *          <li>
+ *          <li> Carles Fernandez
  *          <li> Luis Esteve, 2012. luis(at)epsilon-formacion.com
  *          </ul>
  *
