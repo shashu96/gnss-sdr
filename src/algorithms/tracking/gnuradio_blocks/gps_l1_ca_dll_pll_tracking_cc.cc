@@ -115,8 +115,8 @@ Gps_L1_Ca_Dll_Pll_Tracking_cc::Gps_L1_Ca_Dll_Pll_Tracking_cc(
     d_current_prn_length_samples = static_cast<int>(d_vector_length);
 
     // Initialize tracking  ==========================================
-    d_code_loop_filter.set_DLL_BW(dll_bw_hz);
-    d_carrier_loop_filter.set_PLL_BW(pll_bw_hz);
+    d_code_loop_filter.set_DLL_BW(dll_bw_hz); //check tracking_2nd_DLL_filter.cc
+    d_carrier_loop_filter.set_PLL_BW(pll_bw_hz); //check tracking_2nd_PLL_filter.cc
 
     //--- DLL variables --------------------------------------------------------
     d_early_late_spc_chips = early_late_space_chips; // Define early-late offset (in chips)
@@ -229,8 +229,8 @@ void Gps_L1_Ca_Dll_Pll_Tracking_cc::start_tracking()
     d_carrier_phase_step_rad = GPS_TWO_PI * d_carrier_doppler_hz / static_cast<double>(d_fs_in);
 
     // DLL/PLL filter initialization
-    d_carrier_loop_filter.initialize(); // initialize the carrier filter
-    d_code_loop_filter.initialize();    // initialize the code filter
+    d_carrier_loop_filter.initialize(); // initialize the carrier filter, //check tracking_2nd_PLL_filter.cc
+    d_code_loop_filter.initialize();    // initialize the code filter, //check tracking_2nd_DLL_filter.cc
 
     // generate local reference ALWAYS starting at chip 1 (1 sample per chip)
     gps_l1_ca_code_gen_complex(d_ca_code, d_acquisition_gnss_synchro->PRN, 0);
@@ -332,9 +332,9 @@ int Gps_L1_Ca_Dll_Pll_Tracking_cc::general_work (int noutput_items __attribute__
             // ################## PLL ##########################################################
             // PLL discriminator
             // Update PLL discriminator [rads/Ti -> Secs/Ti]
-            carr_error_hz = pll_cloop_two_quadrant_atan(d_correlator_outs[1]) / GPS_TWO_PI; // prompt output
+            carr_error_hz = pll_cloop_two_quadrant_atan(d_correlator_outs[1]) / GPS_TWO_PI; // prompt output, //check tracking_2nd_PLL_filter.cc
             // Carrier discriminator filter
-            carr_error_filt_hz = d_carrier_loop_filter.get_carrier_nco(carr_error_hz);
+            carr_error_filt_hz = d_carrier_loop_filter.get_carrier_nco(carr_error_hz); //check tracking_2nd_PLL_filter.cc
             // New carrier Doppler frequency estimation
             d_carrier_doppler_hz = d_acq_carrier_doppler_hz + carr_error_filt_hz;
             // New code Doppler frequency estimation
