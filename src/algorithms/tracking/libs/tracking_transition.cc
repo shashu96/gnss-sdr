@@ -2,7 +2,7 @@
  * \file tracking_transition.cc
  * \brief Implementation of a library used by the tracking algorithms.
  * \authors <ul>
- *          <li>
+ *          <li> Carles Fernandez
  *          <li> Luis Esteve, 2012. luis(at)epsilon-formacion.com
  *          </ul>
  *
