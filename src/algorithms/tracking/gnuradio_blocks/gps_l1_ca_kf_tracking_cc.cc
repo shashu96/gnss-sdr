@@ -87,8 +87,8 @@ Gps_L1_Ca_Kf_Tracking_cc::Gps_L1_Ca_Kf_Tracking_cc(
 	d_ts_in_sec = 1/d_fs_in;
 
 	//Initialization
-    x_new_old = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
-    P_new_old = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
+        x_new_old = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
+        P_new_old = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
 
 
 	d_enable_tracking = false;
@@ -100,7 +100,7 @@ int Gps_L1_Ca_Kf_Tracking_cc::general_work(int noutput_items __attribute__((unus
 {
 	double wrap_sig;
 	double sig_hz;
-    double proc_cov_mat;
+        double proc_cov_mat;
 
 	// Block input data and block output stream pointers
 	//const gr_complex* in = (gr_complex*) input_items[0]; //PRN start block alignment
@@ -121,7 +121,7 @@ int Gps_L1_Ca_Kf_Tracking_cc::general_work(int noutput_items __attribute__((unus
 
             // ########################### KALMAN FILTER #########################################
             //Phase input samples
-	        wrap_sig = kf_two_quadrant_atan(input_signal);
+	    wrap_sig = kf_two_quadrant_atan(input_signal);
             sig_hz = wrap_sig/GPS_TWO_PI;
 
             //Phase noise variance
