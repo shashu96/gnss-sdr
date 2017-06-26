@@ -33,7 +33,7 @@
 
 #include "tracking_transition.h"
 #include "tracking_kf_discriminator.h"
-#include<cmath>
+#include <cmath>
 
 /*
  * Kalman filter transition matrix
@@ -41,9 +41,9 @@
  */
 void kf_transition_matrix()
 {
-	stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}};
-	obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
-	trans_obser_mod[3][1] = {{1},{0},{0}};
+    stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}};
+    obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
+    trans_obser_mod[3][1] = {{1},{0},{0}};
 
 }
 
@@ -52,29 +52,29 @@ void kf_transition_matrix()
  */
 void initiazation(long l)
 {
-	int i,j;
-	for(i=1 ; i<=3 ; i++)
-	{
-		for(j=1 ; j<=l+1 ; j++)
-		{
-			pred[i][j] = 0;
+    int i,j;
+    for(i=1 ; i<=3 ; i++)
+        {
+	    for(j=1 ; j<=l+1 ; j++)
+	        {
+		    pred[i][j] = 0;
 		}
 	}
 
-	for(i=1 ; i<=3 ; i++)
-	{
-		for(j=1 ; j<=l ; j++)
-		{
-			est[i][j] = 0;
+    for(i=1 ; i<=3 ; i++)
+        {
+	    for(j=1 ; j<=l ; j++)
+	        {
+		    est[i][j] = 0;
 		}
 	}
 
-	for(i=1 ; i<=l ; i++)
-		{
-			    j=0;
-				error[i][j] = 0;
+    for(i=1 ; i<=l ; i++)
+        {
+	    j=0;
+	    error[i][j] = 0;
 
-		}
+	}
 
 }
 
@@ -83,35 +83,35 @@ void initiazation(long l)
  */
 double kf_impl_alg(double signal, double R, double Q, double x_new_old[3][3], double P_new_old[][3])
 {
-	long len = sizeof(signal);
-	initiazlize(len);
-	double kal_gain;
+    long len = sizeof(signal);
+    initiazlize(len);
+    double kal_gain;
 
-	int k,,p=1;
-	for(k=1 ; k<=len ; k++)
-		{
-			//Measurement prediction
-			error[k][1] = signal[k][1] - pred[1][k]; //error = y_k - y_k-1
+    int k,,p=1;
+    for(k=1 ; k<=len ; k++)
+        {
+	    //Measurement prediction
+	    error[k][1] = signal[k][1] - pred[1][k]; //error = y_k - y_k-1
             error[k][1] = wrapping_filter(error , 0.5);
 
             //Mearurement update
             //Kalman Gain calculation
             for(m=1;m<;m++)
             {
-            	for(n=1;n<;n++)
-            	{
-            		//kal_gain = P_new_old*trantrans_obser_mod[3][1]
+                for(n=1;n<;n++)
+            	    {
+            	        //kal_gain = P_new_old*trantrans_obser_mod[3][1]
             		num[m][1] = num[m][1] + P_new_old[m][n]*trans_obser_mod[n][1]; //numerator of Kalman Gain
             		den_1[1][m] = den[1][m] + obser_mod[1][n]*P_new_old[n][m]; //Denominator part1 of Kalman Gain
 
-            	}
+            	    }
             	den = den + den_1[1][m]*trans_obser_mod[m][1]; //Denominator part2 of Kalman Gain
             }
             den = den + R;
 
             for(m=0;m<;m++)
             {
-            	kal_gain[m][1] = num[m][1]/den; //Kalman Gain = numerator/denominator
+                kal_gain[m][1] = num[m][1]/den; //Kalman Gain = numerator/denominator
             }
 
             /*x_new_new =
@@ -121,12 +121,8 @@ double kf_impl_alg(double signal, double R, double Q, double x_new_old[3][3], do
             }
             */
 
-
-
-
-		}
+     }
 
 
 
 }
-
