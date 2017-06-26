@@ -1,10 +1,9 @@
 /*!
  * \file tracking_transition.h
  * \brief Interface of a library with tracking.
- * \authors <ul>
- *          <li> Carles Fernandez
- *          <li> Luis Esteve, 2012. luis(at)epsilon-formacion.com
- *          </ul>
+ * \authors Carles Fernandez
+ *          Luis Esteve, 2012. luis(at)epsilon-formacion.com
+ *          Shashanka Joisa
  *
  * Library with a set of code tracking and carrier tracking discriminators
  * that is used by the tracking algorithms.
@@ -41,12 +40,14 @@
 class Tracking_Transition
 {
 private:
-	double error[][];
-	double pred[][];
-	double est[][];
+	//size of arrays not yet known
+	double error[50][50];
+	double pred[50][50];
 	double stat_tran_mod[3][3];
-	double obser_mod[3][3];
-	double trans_obser_mod[3][3];
+	double obser_mod[1][3];
+	double trans_obser_mod[3][1];
+	double trans_stat_tran_mod[3][3];
+	double eye[3][3];
 
 public:
 

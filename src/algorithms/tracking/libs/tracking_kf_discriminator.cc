@@ -1,10 +1,9 @@
 /*!
  * \file tracking_kf_discriminator.cc
  * \brief Implementation of a library used by the tracking algorithms.
- * \authors <ul>
- *          <li> Carles Fernandez
- *          <li> Luis Esteve, 2012. luis(at)epsilon-formacion.com
- *          </ul>
+ * \authors Carles Fernandez
+ *          Luis Esteve, 2012. luis(at)epsilon-formacion.com
+ *          Shashanka Joisa
  *
  * -------------------------------------------------------------------------
  *
@@ -40,38 +39,50 @@
  */
 double kf_two_quadrant_atan(gr_complex prompt_s1)
 {
-    if (prompt_s1.real() != 0.0)
-        {
-	    return atan(prompt_s1.imag() / prompt_s1.real());
-	}
-    else
-	{
-	    return 0;
-	}
+	if (prompt_s1.real() != 0.0)
+	    {
+	        return atan(prompt_s1.imag() / prompt_s1.real());
+	    }
+	else
+	    {
+	        return 0;
+	    }
 }
 
 double wrapping_filter(double wrap[][10], float range)
 {
-    long a = sizeof(wrap);
-    long b = sizeof(wrap[1][1]);
-    long len = a/b; //length of the wrap signal
+	long a = sizeof(wrap);
+	long b = sizeof(wrap[1][1]);
+	long len = a/b; //length of the wrap signal
 
-    int i,j=1;
-    for(int i=1;i<=len;i++)
-        {
-	    if(wrap[i][j] > range)
-	        while(wrap[i][j] > range)
-		    wrap[i][j] =wrap[i][j] - 2*range;
+	int i,j=1;
+	for(int i=1;i<=len;i++)
+	{
+		if(wrap[i][j] > range)
+			while(wrap[i][j] > range)
+				wrap[i][j] =wrap[i][j] - 2*range;
 
-	    else if(wrap[i][j] < -range)
-	        while(wrap[i][j] < -range)
-		    wrap[i][j] = wrap[i][j] + 2*range;
+		else if(wrap[i][j] < -range)
+			while(wrap[i][j] < -range)
+				wrap[i][j] = wrap[i][j] + 2*range;
 	}
 	return wrap;
 
 }
 
+double cov_cal(double Qd[3][3])
+{
+    double Q[3][3];
+    int i,j;
 
+    for(i=0 ; i<3 ; i++)
+        {
+    	    for(j=0 ; j<3 ; j++)
+		        {
+    	    	    Q = 1.0e-14*Qd[i][j];
+		        }
+        }
+    return Q;
 }
 
 
