@@ -1,10 +1,11 @@
 /*!
  * \file gps_l1_ca_kf_tracking_cc.cc
  * \brief Implementation of Kalman filter tracking block
- * \author Carles Fernandez
- *         Luis Esteve, 2012. luis(at)epsilon-formacion.com
- *         Carlos Aviles, 2010. carlos.avilesr(at)googlemail.com
+ * \author Carlos Aviles, 2010. carlos.avilesr(at)googlemail.com
  *         Javier Arribas, 2011. jarribas(at)cttc.es
+ *         Luis Esteve, 2012. luis(at)epsilon-formacion.com
+ *         Carles Fernandez
+ *         Shashanka Joisa
  *
  * -------------------------------------------------------------------------
  *
@@ -87,8 +88,8 @@ Gps_L1_Ca_Kf_Tracking_cc::Gps_L1_Ca_Kf_Tracking_cc(
 	d_ts_in_sec = 1/d_fs_in;
 
 	//Initialization
-        x_new_old = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
-        P_new_old = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
+    x_new_old[3][1] = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
+    P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
 
 
 	d_enable_tracking = false;
@@ -100,7 +101,9 @@ int Gps_L1_Ca_Kf_Tracking_cc::general_work(int noutput_items __attribute__((unus
 {
 	double wrap_sig;
 	double sig_hz;
-        double proc_cov_mat;
+    double proc_cov_mat[3][3];
+    double ele[3][3] = {{1/36,0,0},{0,1/4,0},{0,0,1}};
+    double** est_out = 0;
 
 	// Block input data and block output stream pointers
 	//const gr_complex* in = (gr_complex*) input_items[0]; //PRN start block alignment
@@ -121,7 +124,7 @@ int Gps_L1_Ca_Kf_Tracking_cc::general_work(int noutput_items __attribute__((unus
 
             // ########################### KALMAN FILTER #########################################
             //Phase input samples
-	    wrap_sig = kf_two_quadrant_atan(input_signal);
+	        wrap_sig = kf_two_quadrant_atan(input_signal);
             sig_hz = wrap_sig/GPS_TWO_PI;
 
             //Phase noise variance
@@ -129,7 +132,8 @@ int Gps_L1_Ca_Kf_Tracking_cc::general_work(int noutput_items __attribute__((unus
             //d_ts_in_sec = 1/d_fs_in;
             phas_noise_var = (d_fs_in/(8*GPS_PI*GPS_PI*cn0_lin_hz))*(1+(d_fs_in/2*cn0_lin_hz));
 
-            proc_cov_mat = 1.0e-14*{{1/36,0,0},{0,1/4,0},{0,0,1}}; //process covariance matrix
+            //proc_cov_mat = 1.0e-14*{{1/36,0,0},{0,1/4,0},{0,0,1}}; //process covariance matrix
+            proc_cov_mat = cov_cal(ele); //process covariance matrix
 
             //Process begins here
             est_out = kf_impl_alg(sig_hz,phas_noise_var,proc_cov_mat,x_new_old,P_new_old);
