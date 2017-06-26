@@ -51,3 +51,4 @@ double kf_two_quadrant_atan(gr_complex prompt_s1);
  *
  */
 double wrapping_filter(double wrap[][10], float range);
+#endif
