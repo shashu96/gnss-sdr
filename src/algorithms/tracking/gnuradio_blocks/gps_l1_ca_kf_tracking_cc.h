@@ -1,7 +1,9 @@
 /*!
  * \file gps_l1_ca_kf_tracking_cc.cc
  * \brief Interface of Kalman filter tracking block
- * \author Carlos Aviles, 2010. carlos.avilesr(at)googlemail.com
+ * \author Carles Fernandez
+ *         Luis Esteve, 2012. luis(at)epsilon-formacion.com
+ *         Carlos Aviles, 2010. carlos.avilesr(at)googlemail.com
  *         Javier Arribas, 2011. jarribas(at)cttc.es
  *
  * -------------------------------------------------------------------------
