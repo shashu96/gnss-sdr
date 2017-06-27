@@ -40,12 +40,11 @@
  */
 void kf_transition_matrix()
 {
-     stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1];
-	 obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
-	 trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
-	 trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
-	 eye[3][3]={{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
-
+    stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1];
+    obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
+    trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
+    trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
+    eye[3][3]={{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
 }
 
 /*
@@ -53,30 +52,29 @@ void kf_transition_matrix()
  */
 void initiazation(long l)
 {
-	 int i;
-	 int j;
-	 for(i = 0; i < 3; i++)
-	    {
-		    for(j = 0; j < l + 1; j++)
-		        {
-			        pred[i][j] = 0;
-		        }
-	    }
+    int i;
+    int j;
+    for(i = 0; i < 3; i++)
+        {
+            for(j = 0; j < l + 1; j++)
+                {
+	            pred[i][j] = 0;
+		}
+	}
 
-	 for(i = 0; i < 3; i++)
-	     {
-		     for(j = 0; j < l; j++)
-		         {
-			         est[i][j] = 0; //estimation
-		         }
-	     }
+    for(i = 0; i < 3; i++)
+        {
+            for(j = 0; j < l; j++)
+	        {
+	            est[i][j] = 0; //estimation
+		}
+	}
 
-	 for(i = 0; i < l; i++)
-	     {
-		     j = 0;
-			 error[i][j] = 0;
-         }
-
+    for(i = 0; i < l; i++)
+	{
+	    j = 0;
+	    error[i][j] = 0;
+        }
 }
 
 /*
@@ -85,24 +83,24 @@ void initiazation(long l)
 double** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3][1], double P_new_old[][3])
 {
     long len = sizeof(signal);
-	initiazlize(len);
-	double kal_gain[3][1]; //column matrix
-	double x_new_new[3][1]; //column matrix
-	double** est = 0;
+    initiazlize(len);
+    double kal_gain[3][1]; //column matrix
+    double x_new_new[3][1]; //column matrix
+    double** est = 0;
 
-	int k;
-	int p=1;
-	int i;
-	int m;
-	int n;
-	int P_new_new[3][3];
-	for(k = 1; k <= len; k++)
-	    {
-		    //Measurement prediction
-			error[k][0] = signal[k][0] - pred[0][k]; //error = y_k - y_k-1
+    int k;
+    int p=1;
+    int i;
+    int m;
+    int n;
+    int P_new_new[3][3];
+    for(k = 1; k <= len; k++)
+        {
+	    //Measurement prediction
+            error[k][0] = signal[k][0] - pred[0][k]; //error = y_k - y_k-1
 
-			//wrapping
-			//check for passing of error whether it is array or single value
+	    //wrapping
+	    //check for passing of error whether it is array or single value
             error[k][0] = wrapping_filter(error[k][0] , 0.5);
 
             //Mearurement update
@@ -111,10 +109,9 @@ double** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3
                 {
             	    for(n = 0; n < 3; n++) //limit of n not yet known
             	        {
-            		        //kal_gain = P_new_old*trantrans_obser_mod[3][1]
-            		        num[m][0] = num[m][0] + P_new_old[m][n]*trans_obser_mod[n][0]; //numerator of Kalman Gain
-            		        den_1[0][m] = den_1[0][m] + obser_mod[0][n]*P_new_old[n][m]; //Denominator part1 of Kalman Gain
-
+            		     //kal_gain = P_new_old*trantrans_obser_mod[3][1]
+            		     num[m][0] = num[m][0] + P_new_old[m][n]*trans_obser_mod[n][0]; //numerator of Kalman Gain
+            		     den_1[0][m] = den_1[0][m] + obser_mod[0][n]*P_new_old[n][m]; //Denominator part1 of Kalman Gain
             	        }
             	        den = den + den_1[0][m]*trans_obser_mod[m][0]; //Denominator part2 of Kalman Gain
                  }
@@ -141,7 +138,7 @@ double** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3
                     for(n = 0; n < 3; n++)
                         {
                             first[m][n] = kal_gain[m][0]*obser_mod[0][n]; //K*H
-                        	second[m][n] = eye[m][n] + first[m][n];//I-(K*H)
+                            second[m][n] = eye[m][n] + first[m][n];//I-(K*H)
                         }
                 }
 
@@ -151,10 +148,9 @@ double** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3
                     for(n = 0; n < 3; n++)
                         {
                             for(i = 0; i < 3; i++)
-                        	    {
-                        	        P_new_new[m][n] += second[n][i] * P_new_old[i][n];
-                        	    }
-
+                                {
+                        	    P_new_new[m][n] += second[n][i] * P_new_old[i][n];
+                        	}
                         }
                 }
 
@@ -193,12 +189,12 @@ double** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3
             for(m = 0; m < 3; m++)
                 {
                     for(n = 0; n < 3; n++)
-            		    {
-            		        for(i = 0; i < 3; i++)
-            		            {
-            		        	    P_new_old_fr[m][n] += stat_tran_mod[n][i] * P_new_new[i][n];
-            		            }
-            		    }
+            	        {
+            		    for(i = 0; i < 3; i++)
+            		        {
+            		            P_new_old_fr[m][n] += stat_tran_mod[n][i] * P_new_new[i][n];
+            		         }
+            		}
                  }
 
             for(m = 0; m < 3; m++)
@@ -207,8 +203,8 @@ double** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3
                         {
                             for(i = 0; i < 3; i++)
                                 {
-                        		    P_new_old[m][n] += P_new_old_fr[n][i] * trans_stat_tran_mod[i][n];
-                        		}
+                                    P_new_old[m][n] += P_new_old_fr[n][i] * trans_stat_tran_mod[i][n];
+                        	}
                             P_new_old[m][n] += Q[m][n];
                         }
                 }
@@ -218,7 +214,6 @@ double** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3
                 {
             	    est[i][k] = x_new_new[i][0];
                 }
-		}
+            }
 	return est;
 }
-
