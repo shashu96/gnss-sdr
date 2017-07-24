@@ -56,13 +56,18 @@ class Gps_L1_Ca_Kf_Tracking
 {
 public:
 	~Gps_L1_Ca_Kf_Tracking(); //destructor
-
-	void start)tracking();
-	int general_work();
+	void set_channel(unsigned int channel);
+	void starttracking();
+    int general_work (int noutput_items, gr_vector_int &ninput_items,
+            gr_vector_const_void_star &input_items, gr_vector_void_star &output_items);
 
 private:
 	friend gps_l1_ca_kf_tracking_cc_sptr
-	gps_l1_ca_kf_make_tracking_cc();
+	gps_l1_ca_kf_make_tracking_cc(long if_freq,
+            long fs_in, unsigned
+            int vector_length,
+            bool dump,
+            std::string dump_filename);
 
 	Gps_L1_Ca_Kf_Tracking(
 			long if_freq,
@@ -72,22 +77,50 @@ private:
 		    std::string dump_filename); //consructor
 
 	// tracking configuration vars
-	    unsigned int d_vector_length;
-	    bool d_dump;
+	unsigned int d_vector_length;
+	bool d_dump;
 
-	    Gnss_Synchro* d_acquisition_gnss_synchro;
-	    unsigned int d_channel;
+	Gnss_Synchro* d_acquisition_gnss_synchro;
+	unsigned int d_channel;
 
-	    long d_if_freq;
-	    long d_fs_in;
-	    long cn0_lin_hz;
-	    long d_ts_in_sec;
+	long d_if_freq;
+	long d_fs_in;
+	long cn0_lin_hz;
+	long d_ts_in_sec;
 
-	    double phas_noise_var;
-	    double x_new_old;
-	    double P_new_old;
+	// acquisition
+	double d_acq_code_phase_samples;
+	double d_acq_carrier_doppler_hz;
 
+	double phas_noise_var;
+	double x_new_old;
+	double P_new_old;
 
+	// tracking vars
+	double d_code_freq_chips;
+	double d_code_phase_step_chips;
+	double d_carrier_doppler_hz;
+	double d_carrier_phase_step_rad;
+	double d_acc_carrier_phase_rad;
+	double d_code_phase_samples;
+
+	//PRN period in samples
+	int d_current_prn_length_samples;
+
+	//processing samples counters
+	unsigned long int d_sample_counter;
+	unsigned long int d_acq_sample_stamp;
+
+	// control vars
+	bool d_enable_tracking;
+	bool d_pull_in;
+
+	// file dump
+	std::string d_dump_filename;
+	std::ofstream d_dump_file;
+
+	std::map<std::string, std::string> systemName;
+	std::string sys;
 
 };
 
