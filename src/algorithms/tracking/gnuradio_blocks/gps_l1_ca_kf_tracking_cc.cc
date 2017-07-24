@@ -122,6 +122,9 @@ void Gps_L1_Ca_Kf_Tracking_cc::start_tracking()
     /*
      *  correct the code phase according to the delay between acq and trk
      */
+
+	//not sure about this -->start
+
     d_acq_code_phase_samples = d_acquisition_gnss_synchro->Acq_delay_samples;
     d_acq_carrier_doppler_hz = d_acquisition_gnss_synchro->Acq_doppler_hz;
     d_acq_sample_stamp = d_acquisition_gnss_synchro->Acq_samplestamp_samples;
@@ -178,6 +181,8 @@ void Gps_L1_Ca_Kf_Tracking_cc::start_tracking()
 
     std::string sys_ = &d_acquisition_gnss_synchro->System;
     sys = sys_.substr(0,1);
+
+    //--> end
 
     // DEBUG OUTPUT
     std::cout << "Tracking start on channel " << d_channel << " for satellite " << Gnss_Satellite(systemName[sys], d_acquisition_gnss_synchro->PRN) << std::endl;
