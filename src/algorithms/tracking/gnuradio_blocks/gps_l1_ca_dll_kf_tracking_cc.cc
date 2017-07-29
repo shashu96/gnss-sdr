@@ -331,10 +331,10 @@ int Gps_L1_Ca_Dll_Kf_Tracking_cc::general_work (int noutput_items __attribute__(
 
             // ################## PLL ##########################################################
             // PLL discriminator
-            // Update PLL discriminator [rads/Ti -> Secs/Ti]
+            // Update KF discriminator [rads/Ti -> Secs/Ti]
             carr_error_hz = pll_cloop_two_quadrant_atan(d_correlator_outs[1]) / GPS_TWO_PI; // prompt output, //check tracking_2nd_PLL_filter.cc
             // Carrier discriminator filter
-            carr_error_filt_hz = d_carrier_loop_filter.get_carrier_nco(carr_error_hz); //check tracking_2nd_PLL_filter.cc
+            carr_error_filt_hz = d_carrier_loop_filter.get_carrier_kf_nco(carr_error_hz,d_fs_in); //check tracking_2nd_PLL_filter.cc
             // New carrier Doppler frequency estimation
             d_carrier_doppler_hz = d_acq_carrier_doppler_hz + carr_error_filt_hz;
             // New code Doppler frequency estimation
@@ -525,4 +525,3 @@ void Gps_L1_Ca_Dll_Kf_Tracking_cc::set_gnss_synchro(Gnss_Synchro* p_gnss_synchro
 {
     d_acquisition_gnss_synchro = p_gnss_synchro;
 }
-//end

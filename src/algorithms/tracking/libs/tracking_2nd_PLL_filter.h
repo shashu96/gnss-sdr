@@ -65,6 +65,7 @@ public:
     void set_pdi(float pdi_carr); //! Set Summation interval for code [s]
     void initialize();
     float get_carrier_nco(float PLL_discriminator);
+    float get_carrier_kf_nco(float KF_discriminator, long d_fs_in);
     Tracking_2nd_PLL_filter(float pdi_carr);
     Tracking_2nd_PLL_filter();
     ~Tracking_2nd_PLL_filter();

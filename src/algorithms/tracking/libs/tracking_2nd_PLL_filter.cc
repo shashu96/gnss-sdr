@@ -35,6 +35,7 @@
  */
 
 #include "tracking_2nd_PLL_filter.h"
+#include "GPS_L1_CA.h"
 
 
 void Tracking_2nd_PLL_filter::calculate_lopp_coef(float* tau1,float* tau2, float lbw, float zeta, float k)
@@ -79,6 +80,18 @@ float Tracking_2nd_PLL_filter::get_carrier_nco(float PLL_discriminator)
     d_old_carr_nco   = carr_nco;
     d_old_carr_error = PLL_discriminator;
     return carr_nco;
+}
+
+float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d_fs_in)
+{
+    #define CN0_ESTIMATION_SAMPLES 20
+	long cn0_lin_hz;
+	double phas_noise_var;
+	cn0_lin_hz = pow(10,(CN0_ESTIMATION_SAMPLES/10));
+
+	//Phase noise variance
+	phas_noise_var = (d_fs_in/(8*GPS_PI*GPS_PI*cn0_lin_hz))*(1+(d_fs_in/2*cn0_lin_hz));
+
 }
 
 Tracking_2nd_PLL_filter::Tracking_2nd_PLL_filter (float pdi_carr)
