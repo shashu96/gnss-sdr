@@ -58,7 +58,7 @@ private:
     float d_old_carr_error = 0;
     float d_old_carr_nco = 0;
     float est_out = 0;
-    double ele[3][3];
+    double ele[3][3] = {{1.0/36.0,0.0,0.0},{0.0,1.0/4.0,0.0},{0.0,0.0,1.0}};
 	double x_new_old[3][1];
 	double P_new_old[3][3];
 
