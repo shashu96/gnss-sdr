@@ -105,7 +105,7 @@ void Tracking_2nd_PLL_filter::initialize()
     obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
     trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
     trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
-    eye[3][3]={{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
+    eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
 
 }
 /*

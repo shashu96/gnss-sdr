@@ -72,7 +72,6 @@ private:
 	double trans_stat_tran_mod[3][3];
 	double eye[3][3];
 
-
     void calculate_lopp_coef(float* tau1,float* tau2, float lbw, float zeta, float k);
 
 public:
