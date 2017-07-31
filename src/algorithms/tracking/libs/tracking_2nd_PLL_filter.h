@@ -57,6 +57,21 @@ private:
 
     float d_old_carr_error = 0;
     float d_old_carr_nco = 0;
+    float est_out = 0;
+    double ele[3][3];
+	double x_new_old[3][1];
+	double P_new_old[3][3];
+
+	//size of arrays not yet known
+	double error[50][50];
+	double pred[50][50];
+	float** est[3][1000];
+	double stat_tran_mod[3][3];
+	double obser_mod[1][3];
+	double trans_obser_mod[3][1];
+	double trans_stat_tran_mod[3][3];
+	double eye[3][3];
+
 
     void calculate_lopp_coef(float* tau1,float* tau2, float lbw, float zeta, float k);
 
@@ -66,6 +81,8 @@ public:
     void initialize();
     float get_carrier_nco(float PLL_discriminator);
     float get_carrier_kf_nco(float KF_discriminator, long d_fs_in);
+    float** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3][1], double P_new_old[][3]);
+    double cov_cal(double Qd[3][3]);
     Tracking_2nd_PLL_filter(float pdi_carr);
     Tracking_2nd_PLL_filter();
     ~Tracking_2nd_PLL_filter();
