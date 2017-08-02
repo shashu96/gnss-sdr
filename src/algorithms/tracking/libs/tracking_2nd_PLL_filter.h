@@ -57,20 +57,18 @@ private:
 
     float d_old_carr_error = 0;
     float d_old_carr_nco = 0;
-    float est_out = 0;
-    double ele[3][3] = {{1.0/36.0,0.0,0.0},{0.0,1.0/4.0,0.0},{0.0,0.0,1.0}};
+    double ele[][3] = {{(1/36),0,0},{0,(1/4),0},{0,0,1}};
 	double x_new_old[3][1];
-	double P_new_old[3][3];
+	double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
 
 	//size of arrays not yet known
 	double error[50][50];
 	double pred[50][50];
-	float** est[3][1000];
-	double stat_tran_mod[3][3];
-	double obser_mod[1][3];
-	double trans_obser_mod[3][1];
-	double trans_stat_tran_mod[3][3];
-	double eye[3][3];
+	double stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1]
+	double obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
+	double trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
+	double trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
+	double eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
 
     void calculate_lopp_coef(float* tau1,float* tau2, float lbw, float zeta, float k);
 

@@ -64,7 +64,6 @@ void Tracking_2nd_PLL_filter::initialize()
     d_old_carr_nco   = 0.0;
     d_old_carr_error = 0.0;
     long l=3;
-	est_out = 0;
 	//ele[3][3] = {{1.0/36.0,0.0,0.0},{0.0,1.0/4.0,0.0},{0.0,0.0,1.0}};
 
 
@@ -81,6 +80,7 @@ void Tracking_2nd_PLL_filter::initialize()
 		        }
 	    }
 
+    /*
     est = new float*[3];
     for(i = 0; i < 3; i++)
         {
@@ -90,6 +90,7 @@ void Tracking_2nd_PLL_filter::initialize()
 	                est[i][j] = 0; //estimation
     	        }
 		}
+	*/
 
     for(i = 0; i < l; i++)
 	{
@@ -101,11 +102,11 @@ void Tracking_2nd_PLL_filter::initialize()
      * Kalman filter transition matrix
      * F and H
      */
-    stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1];
-    obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
-    trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
-    trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
-    eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
+    //stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1];
+    ///obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
+    //trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
+    //trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
+    //eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
 
 }
 /*
@@ -152,13 +153,14 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
     #define CN0_ESTIMATION_SAMPLES 20
 	long cn0_lin_hz;
 	double phas_noise_var;
-	double proc_cov_mat[3][3];
+	double** proc_cov_mat;
+	float** est_out;
 	float carr_nco;
     long d_ts_in_sec = 1/d_fs_in;
 	cn0_lin_hz = pow(10,(CN0_ESTIMATION_SAMPLES/10));
 	//Initialization
     x_new_old[3][1] = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
-    P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
+
 
 	//Phase noise variance
 	phas_noise_var = (d_fs_in/(8*GPS_PI*GPS_PI*cn0_lin_hz))*(1+(d_fs_in/2*cn0_lin_hz));
@@ -173,16 +175,16 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 /*
  * Kalman Filter algorithm implementation
  */
-float** kf_impl_alg(double error_signal, double R, double Q[3][3], double x_new_old[3][1], double P_new_old[][3])
+float** kf_impl_alg(float error_signal, double R, double Q[3][3], double x_new_old[3][1], double P_new_old[][3])
 {
     long len = sizeof(error_signal);
     //initiazlize(len);
-    double kal_gain[3][1]; //column matrix
+    double kal_gain[3][1] = {{1},{1},{1}}; //column matrix
     double x_new_new[3][1]; //column matrix
     //double** est = 0;
 
     int k;
-    int p=1;
+    //int p=1;
     int i;
     int m;
     int n;
@@ -197,8 +199,6 @@ float** kf_impl_alg(double error_signal, double R, double Q[3][3], double x_new_
 	        //check for passing of error whether it is array or single value
             //error[k][0] = wrapping_filter(error[k][0] , 0.5);
 
-
-            kal_gain[][] ={1;1;1};
             /*
             //Mearurement update
             //Kalman Gain calculation
@@ -225,7 +225,7 @@ float** kf_impl_alg(double error_signal, double R, double Q[3][3], double x_new_
             for(i = 0; i < 3; i++)
                 {
             	    //x_new_new[i][0] = x_new_old[i][0] + kal_gain[i][0]*error[k][0];
-            	x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error_signal);
+            	    x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error_signal);
                 }
 
             //wrapping
@@ -249,8 +249,8 @@ float** kf_impl_alg(double error_signal, double R, double Q[3][3], double x_new_
                         {
                             for(i = 0; i < 3; i++)
                                 {
-                        	    P_new_new[m][n] += second[n][i] * P_new_old[i][n];
-                        	}
+                        	        P_new_new[m][n] += second[n][i] * P_new_old[i][n];
+                        	    }
                         }
                 }
 
@@ -290,12 +290,12 @@ float** kf_impl_alg(double error_signal, double R, double Q[3][3], double x_new_
                 {
                     for(n = 0; n < 3; n++)
             	        {
-            		    for(i = 0; i < 3; i++)
-            		        {
-            		            P_new_old_fr[m][n] += stat_tran_mod[n][i] * P_new_new[i][n];
-            		         }
-            		}
-                 }
+            		        for(i = 0; i < 3; i++)
+            		            {
+            		                P_new_old_fr[m][n] += stat_tran_mod[n][i] * P_new_new[i][n];
+            		            }
+            		    }
+                }
 
             for(m = 0; m < 3; m++)
                 {
@@ -309,26 +309,32 @@ float** kf_impl_alg(double error_signal, double R, double Q[3][3], double x_new_
                         }
                 }
 
+            float** est = 0;
+            est = new float*[3];
             //Final estimation
             for(i = 0; i < 3; i++)
                 {
+            	    est[i] =new float[1000];
             	    est[i][k] = x_new_new[i][0];
                 }
             }
-    float carr = (float) est;
-	return carr;
+    //float carr = (float) est;
+	return est;
 }
 
-double cov_cal(double Qd[3][3])
+double** cov_cal(double Qd[3][3])
 {
-    double Q[3][3];
+    double** Q = 0;
+    Q = new double*[3];
     int i,j;
 
     for(i=0 ; i<3 ; i++)
         {
+    	    Q[i] = new double[3];
     	    for(j=0 ; j<3 ; j++)
 		        {
-    	    	    Q = 1.0e-14*Qd[i][j];
+    	    	    //Q[i][j] = 1.0e-14*Qd[i][j];
+    	    	    Q[i][j] = Qd[i][j];
 		        }
         }
     return Q;
