@@ -57,18 +57,18 @@ private:
 
     float d_old_carr_error = 0;
     float d_old_carr_nco = 0;
-    double ele[][3] = {{(1/36),0,0},{0,(1/4),0},{0,0,1}};
-	double x_new_old[3][1];
-	double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
+    double ele[3][3] = {{(1/36),0,0},{0,(1/4),0},{0,0,1}};
+	//double x_new_old[3][1];
+	//double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
 
 	//size of arrays not yet known
 	double error[50][50];
 	double pred[50][50];
-	double stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1]
-	double obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
+	//double stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1]
+	//double obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
 	double trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
-	double trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
-	double eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
+	//double trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
+	//double eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
 
     void calculate_lopp_coef(float* tau1,float* tau2, float lbw, float zeta, float k);
 
@@ -76,10 +76,11 @@ public:
     void set_PLL_BW(float pll_bw_hz);  //! Set PLL loop bandwidth [Hz]
     void set_pdi(float pdi_carr); //! Set Summation interval for code [s]
     void initialize();
+    double wrapping_filter(double wrap, float range);
     float get_carrier_nco(float PLL_discriminator);
     float get_carrier_kf_nco(float KF_discriminator, long d_fs_in);
-    float** kf_impl_alg(double signal, double R, double Q[3][3], double x_new_old[3][1], double P_new_old[][3]);
-    double cov_cal(double Qd[3][3]);
+    float** kf_impl_alg(float signal, double** Q, double x_new_old[3][1], double P_new_old[][3]);
+    double** cov_cal(double Qd[3][3]);
     Tracking_2nd_PLL_filter(float pdi_carr);
     Tracking_2nd_PLL_filter();
     ~Tracking_2nd_PLL_filter();

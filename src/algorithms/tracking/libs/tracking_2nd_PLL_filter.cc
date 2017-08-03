@@ -112,7 +112,7 @@ void Tracking_2nd_PLL_filter::initialize()
 /*
  * Wrapping within a bound
  */
-double wrapping_filter(double wrap, float range)
+double Tracking_2nd_PLL_filter::wrapping_filter(double wrap, float range)
 {
 	//long a = sizeof(wrap);
 	//long b = sizeof(wrap[1][1]);
@@ -154,34 +154,49 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 	long cn0_lin_hz;
 	double phas_noise_var;
 	double** proc_cov_mat;
+	double proc_cov;
 	float** est_out;
 	float carr_nco;
-    long d_ts_in_sec = 1/d_fs_in;
+    //long d_ts_in_sec = 1/d_fs_in;
+	double d_ts_in_sec = 1/d_fs_in;
 	cn0_lin_hz = pow(10,(CN0_ESTIMATION_SAMPLES/10));
 	//Initialization
-    x_new_old[3][1] = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
-
+	double x_new_old[3][1] = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
+	double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
 
 	//Phase noise variance
 	phas_noise_var = (d_fs_in/(8*GPS_PI*GPS_PI*cn0_lin_hz))*(1+(d_fs_in/2*cn0_lin_hz));
 	proc_cov_mat = cov_cal(ele); //process covariance matrix
+    //proc_cov = **proc_cov_mat;
 
 	//Process begins here
-	est_out = kf_impl_alg(KF_discriminator,phas_noise_var,proc_cov_mat,x_new_old,P_new_old);
-	carr_nco = est_out;
+	est_out = kf_impl_alg(KF_discriminator,proc_cov_mat,x_new_old,P_new_old);
+	//est_out = kf_impl_alg(KF_discriminator,phas_noise_var,proc_cov,x_new_old,P_new_old);
+	carr_nco = **est_out;
 	return carr_nco;
 }
 
 /*
  * Kalman Filter algorithm implementation
  */
-float** kf_impl_alg(float error_signal, double R, double Q[3][3], double x_new_old[3][1], double P_new_old[][3])
+//float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double R, double Q, double x_new_old[3][1], double P_new_old[][3])
+float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, double x_new_old[3][1], double P_new_old[][3])
 {
     long len = sizeof(error_signal);
     //initiazlize(len);
     double kal_gain[3][1] = {{1},{1},{1}}; //column matrix
     double x_new_new[3][1]; //column matrix
+    double first[3][3];
+    double second[3][3];
+    double P_new_old_fr[3][3];
+    double sum = 0;
+    double obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
+    double eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
+    double stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1]
+    double trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
     //double** est = 0;
+    float** est = 0;
+    est = new float*[3];
 
     int k;
     //int p=1;
@@ -309,8 +324,7 @@ float** kf_impl_alg(float error_signal, double R, double Q[3][3], double x_new_o
                         }
                 }
 
-            float** est = 0;
-            est = new float*[3];
+
             //Final estimation
             for(i = 0; i < 3; i++)
                 {
@@ -322,7 +336,7 @@ float** kf_impl_alg(float error_signal, double R, double Q[3][3], double x_new_o
 	return est;
 }
 
-double** cov_cal(double Qd[3][3])
+double** Tracking_2nd_PLL_filter::cov_cal(double Qd[3][3])
 {
     double** Q = 0;
     Q = new double*[3];
@@ -333,8 +347,8 @@ double** cov_cal(double Qd[3][3])
     	    Q[i] = new double[3];
     	    for(j=0 ; j<3 ; j++)
 		        {
-    	    	    //Q[i][j] = 1.0e-14*Qd[i][j];
-    	    	    Q[i][j] = Qd[i][j];
+    	    	    Q[i][j] = 1.0e-14*Qd[i][j];
+    	    	    //Q[i][j] = Qd[i][j];
 		        }
         }
     return Q;
