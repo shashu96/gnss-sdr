@@ -413,7 +413,7 @@ TEST_F(GpsL1CADllKfTrackingTest, ValidationOfResults)
     long int nepoch = true_obs_data.num_epochs();
     std::cout << "True observation epochs=" << nepoch << std::endl;
 
-    arma::vec true_timestamp_s = arma::zeros(nepoch, 1);
+    arma::vec true_timestamp_s = arma::zeros(nepoch, 1);//
     arma::vec true_acc_carrier_phase_cycles = arma::zeros(nepoch, 1);
     arma::vec true_Doppler_Hz = arma::zeros(nepoch, 1);
     arma::vec true_prn_delay_chips = arma::zeros(nepoch, 1);
