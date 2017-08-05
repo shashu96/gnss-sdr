@@ -46,13 +46,13 @@
 #include "tracking_2nd_PLL_filter.h"
 #include "cpu_multicorrelator.h"
 
-class Gps_L1_Ca_Dll_Pll_Tracking_cc;
+class Gps_L1_Ca_Dll_Kf_Tracking_cc;
 
-typedef boost::shared_ptr<Gps_L1_Ca_Dll_Pll_Tracking_cc>
-        gps_l1_ca_dll_pll_tracking_cc_sptr;
+typedef boost::shared_ptr<Gps_L1_Ca_Dll_Kf_Tracking_cc>
+        gps_l1_ca_dll_kf_tracking_cc_sptr;
 
-gps_l1_ca_dll_pll_tracking_cc_sptr
-gps_l1_ca_dll_pll_make_tracking_cc(long if_freq,
+gps_l1_ca_dll_kf_tracking_cc_sptr
+gps_l1_ca_dll_kf_make_tracking_cc(long if_freq,
                                    long fs_in, unsigned
                                    int vector_length,
                                    bool dump,

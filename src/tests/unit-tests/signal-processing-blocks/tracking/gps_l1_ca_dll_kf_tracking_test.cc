@@ -63,7 +63,7 @@ typedef boost::shared_ptr<GpsL1CADllKfTrackingTest_msg_rx> GpsL1CADllKfTrackingT
 
 GpsL1CADllKfTrackingTest_msg_rx_sptr GpsL1CADllKfTrackingTest_msg_rx_make();
 
-class GpsL1CADLLKfTrackingTest_msg_rx : public gr::block
+class GpsL1CADllKfTrackingTest_msg_rx : public gr::block
 {
 private:
     friend GpsL1CADllKfTrackingTest_msg_rx_sptr GpsL1CADllKfTrackingTest_msg_rx_make();
@@ -75,7 +75,7 @@ public:
     ~GpsL1CADllKfTrackingTest_msg_rx(); //!< Default destructor
 };
 
-GpsL1CADLLKfTrackingTest_msg_rx_sptr GpsL1CADllKfTrackingTest_msg_rx_make()
+GpsL1CADllKfTrackingTest_msg_rx_sptr GpsL1CADllKfTrackingTest_msg_rx_make()
 {
     return GpsL1CADllKfTrackingTest_msg_rx_sptr(new GpsL1CADllKfTrackingTest_msg_rx());
 }
@@ -215,11 +215,13 @@ void GpsL1CADllKfTrackingTest::configure_receiver()
 
     config->set_property("GNSS-SDR.internal_fs_hz", std::to_string(baseband_sampling_freq));
     // Set Tracking
-    config->set_property("Tracking_1C.implementation", "GPS_L1_CA_KF_Tracking");
+    config->set_property("Tracking_1C.implementation", "GPS_L1_CA_DLL_KF_Tracking");
     config->set_property("Tracking_1C.item_type", "gr_complex");
     config->set_property("Tracking_1C.if", "0");
     config->set_property("Tracking_1C.dump", "true");
     config->set_property("Tracking_1C.dump_filename", "./tracking_ch_");
+    config->set_property("Tracking_1C.pll_bw_hz", "30.0");
+    config->set_property("Tracking_1C.dll_bw_hz", "2.0");
     config->set_property("Tracking_1C.early_late_space_chips", "0.5");
 }
 
@@ -322,7 +324,7 @@ void GpsL1CADllKfTrackingTest::check_results_codephase(arma::vec true_time_s,
 
 }
 
-TEST_F(GpsL1CADLLKfTrackingTest, ValidationOfResults)
+TEST_F(GpsL1CADllKfTrackingTest, ValidationOfResults)
 {
     // Configure the signal generator
     configure_generator();
@@ -352,6 +354,7 @@ TEST_F(GpsL1CADLLKfTrackingTest, ValidationOfResults)
 
     top_block = gr::make_top_block("Tracking test");
     std::shared_ptr<TrackingInterface> tracking = std::make_shared<GpsL1CaDllKfTracking>(config.get(), "Tracking_1C", 1, 1);
+    //std::shared_ptr<TrackingInterface> tracking = std::make_shared<GpsL1CaDllPllCAidTracking>(config.get(), "Tracking_1C", 1, 1);
 
     boost::shared_ptr<GpsL1CADllKfTrackingTest_msg_rx> msg_rx = GpsL1CADllKfTrackingTest_msg_rx_make();
 

@@ -72,7 +72,7 @@ gps_l1_ca_dll_kf_make_tracking_cc(
         float dll_bw_hz,
         float early_late_space_chips)
 {
-    return gps_l1_ca_dll_kf_tracking_cc_sptr(new Gps_L1_Ca_Dll_Pll_Tracking_cc(if_freq,
+    return gps_l1_ca_dll_kf_tracking_cc_sptr(new Gps_L1_Ca_Dll_Kf_Tracking_cc(if_freq,
             fs_in, vector_length, dump, dump_filename, pll_bw_hz, dll_bw_hz, early_late_space_chips));
 }
 
@@ -265,7 +265,7 @@ void Gps_L1_Ca_Dll_Kf_Tracking_cc::start_tracking()
             << " PULL-IN Code Phase [samples]=" << d_acq_code_phase_samples;
 }
 
-Gps_L1_Ca_Dll_Kf_Tracking_cc::~Gps_L1_Ca_Dll_kf_Tracking_cc()
+Gps_L1_Ca_Dll_Kf_Tracking_cc::~Gps_L1_Ca_Dll_Kf_Tracking_cc()
 {
     d_dump_file.close();
 
