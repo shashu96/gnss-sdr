@@ -80,47 +80,21 @@ void Tracking_2nd_PLL_filter::initialize()
 		        }
 	    }
 
-    /*
-    est = new float*[3];
-    for(i = 0; i < 3; i++)
-        {
-    	    est[i] = new int[1000];
-    	    for(j = 0 ; j < 1000 ; j++)
-    	        {
-	                est[i][j] = 0; //estimation
-    	        }
-		}
-	*/
-
+    j = 0;
     for(i = 0; i < l; i++)
 	{
-	    j = 0;
 	    error[i][j] = 0;
     }
 
-    /*
-     * Kalman filter transition matrix
-     * F and H
-     */
-    //stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1];
-    ///obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
-    //trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
-    //trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
-    //eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
-
 }
+
 /*
  * Wrapping within a bound
  */
 double Tracking_2nd_PLL_filter::wrapping_filter(double wrap, float range)
 {
-	//long a = sizeof(wrap);
-	//long b = sizeof(wrap[1][1]);
-	//long len = a/b; //length of the wrap signal
-
-	//int i,j=1;
-	//for(int i=1;i<=len;i++)
-	//{
+	while(wrap>range || wrap<-range)
+	{
 		if(wrap > range)
 			while(wrap > range)
 				wrap = wrap - 2*range;
@@ -128,7 +102,8 @@ double Tracking_2nd_PLL_filter::wrapping_filter(double wrap, float range)
 		else if(wrap < -range)
 			while(wrap < -range)
 				wrap = wrap + 2*range;
-	//}
+	}
+
 	return wrap;
 
 }
@@ -155,11 +130,12 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 	double phas_noise_var;
 	double** proc_cov_mat;
 	double proc_cov;
-	float** est_out;
+	float est_out;
 	float carr_nco;
-    //long d_ts_in_sec = 1/d_fs_in;
-	double d_ts_in_sec = 1/d_fs_in;
+    long d_ts_in_sec = 1/d_fs_in;
+	//double d_ts_in_sec = 1/d_fs_in;
 	cn0_lin_hz = pow(10,(CN0_ESTIMATION_SAMPLES/10));
+
 	//Initialization
 	double x_new_old[3][1] = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
 	double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
@@ -167,12 +143,12 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 	//Phase noise variance
 	phas_noise_var = (d_fs_in/(8*GPS_PI*GPS_PI*cn0_lin_hz))*(1+(d_fs_in/2*cn0_lin_hz));
 	proc_cov_mat = cov_cal(ele); //process covariance matrix
-    //proc_cov = **proc_cov_mat;
 
 	//Process begins here
 	est_out = kf_impl_alg(KF_discriminator,proc_cov_mat,x_new_old,P_new_old);
 	//est_out = kf_impl_alg(KF_discriminator,phas_noise_var,proc_cov,x_new_old,P_new_old);
-	carr_nco = **est_out;
+
+	carr_nco = est_out;
 	return carr_nco;
 }
 
@@ -183,8 +159,8 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, double x_new_old[3][1], double P_new_old[][3])
 {
     long len = sizeof(error_signal);
-    //initiazlize(len);
     double kal_gain[3][1] = {{1},{1},{1}}; //column matrix
+    double kal_gain[3][1] = {{1.121817},{7.533759},{232.944295}}; //column matrix
     double x_new_new[3][1]; //column matrix
     double first[3][3];
     double second[3][3];
@@ -192,27 +168,36 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
     double sum = 0;
     double obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
     double eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
-    double stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1]
-    double trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
-    //double** est = 0;
+    //double stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1]
+    double stat_tran_mod[3][3] = {{1,0.0001,5.0e-9},{0,1,0.0001},{0,0,1}};
+    //double trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
+    double trans_stat_tran_mod[3][3] = {{1,0,0},{0.0001,1,0},{5.0e-9,0.0001,1}};
+    float res = 0;
     float** est = 0;
     est = new float*[3];
 
-    int k;
+    int k=1;
     //int p=1;
     int i;
     int m;
     int n;
     int P_new_new[3][3];
-    for(k = 1; k <= len; k++)
-        {
 
+    float carr_nco;
+    carr_nco = d_old_carr_nco + (d_tau2_carr/d_tau1_carr)*(error_signal - d_old_carr_error) + (error_signal + d_old_carr_error) * (d_pdi_carr/(2*d_tau1_carr));
+    //carr_nco = d_old_carr_nco + (d_tau2_carr/d_tau1_carr)*(PLL_discriminator - d_old_carr_error) + PLL_discriminator * (d_pdi_carr/d_tau1_carr);
+    d_old_carr_nco   = carr_nco;
+    d_old_carr_error = error_signal;
+
+    //for(k = 1; k <= len; k++)
+        //{
 	        //Measurement prediction
             //error[k][0] = signal[k][0] - pred[0][k]; //error = y_k - y_k-1
+    	    error[k][0] = error_signal - pred[0][k]; //error = y_k - y_k-1
 
 	        //wrapping
 	        //check for passing of error whether it is array or single value
-            //error[k][0] = wrapping_filter(error[k][0] , 0.5);
+            error[k][0] = wrapping_filter(error[k][0] , 200);
 
             /*
             //Mearurement update
@@ -239,13 +224,16 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
             //x_new_new = x_new_old + K*error(k);
             for(i = 0; i < 3; i++)
                 {
-            	    //x_new_new[i][0] = x_new_old[i][0] + kal_gain[i][0]*error[k][0];
-            	    x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error_signal);
+            	    x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error[k][0]);
+            	    //x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error_signal);
                 }
 
             //wrapping
             //check for passing of error whether it is array or single value
-            x_new_new[0][0] = wrapping_filter(x_new_new[0][0],0.5);
+            for(i=0;i < 3; i++)
+            {
+                x_new_new[i][0] = wrapping_filter(x_new_new[i][0],200);
+            }
 
             //Estimation of error covariance (P_new_new)
             for(m = 0; m < 3; m++)
@@ -281,7 +269,11 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
 
             //wrapping
             //check for passing of error whether it is array or single value
-            x_new_old[0][0] = wrapping_filter(x_new_old[0][0],0.5);
+
+            for(i=0; i<3; i++)
+                {
+                    x_new_old[i][0] = wrapping_filter(x_new_old[i][0],200);
+                }
 
             //predicted measurement
             //prediction(:,k+1) = H*x_new_old
@@ -297,7 +289,10 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
 
             //wrapping
             //check for passing of error whether it is array or single value
-            pred[0][k+1] = wrapping_filter(pred[0][k+1],0.5);
+            for(i=0; i<3; i++)
+                {
+                    pred[i][k+1] = wrapping_filter(pred[i][k+1],200);
+                }
 
             //Predicted error covariance
             //P_new_old = F*P_new_new*F.' + Q
@@ -330,10 +325,11 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
                 {
             	    est[i] =new float[1000];
             	    est[i][k] = x_new_new[i][0];
+            	    //res += est[i][k];
                 }
-            }
-    //float carr = (float) est;
-	return est;
+            //}
+    return est[0][1];
+	//return res;
 }
 
 double** Tracking_2nd_PLL_filter::cov_cal(double Qd[3][3])

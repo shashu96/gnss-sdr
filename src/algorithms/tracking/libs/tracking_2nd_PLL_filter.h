@@ -62,8 +62,8 @@ private:
 	//double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
 
 	//size of arrays not yet known
-	double error[50][50];
-	double pred[50][50];
+	double error[50][50]={0};
+	double pred[50][50]={0};
 	//double stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1]
 	//double obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
 	double trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
