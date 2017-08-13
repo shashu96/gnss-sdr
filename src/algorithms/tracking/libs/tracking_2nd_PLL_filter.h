@@ -78,7 +78,7 @@ public:
     void initialize();
     double wrapping_filter(double wrap, float range);
     float get_carrier_nco(float PLL_discriminator);
-    float get_carrier_kf_nco(float KF_discriminator, long d_fs_in);
+    float get_carrier_kf_nco(float KF_discriminator, float d_fs_in);
     float** kf_impl_alg(float signal, double** Q, double x_new_old[3][1], double P_new_old[][3]);
     double** cov_cal(double Qd[3][3]);
     Tracking_2nd_PLL_filter(float pdi_carr);
