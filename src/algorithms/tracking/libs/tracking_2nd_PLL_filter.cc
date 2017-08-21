@@ -202,9 +202,9 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
                 {
             	    for(n = 0; n < 3; n++) //limit of n not yet known
             	        {
-            		     //kal_gain = P_new_old*trantrans_obser_mod[3][1]
-            		     num[m][0] = num[m][0] + P_new_old[m][n]*trans_obser_mod[n][0]; //numerator of Kalman Gain
-            		     den_1[0][m] = den_1[0][m] + obser_mod[0][n]*P_new_old[n][m]; //Denominator part1 of Kalman Gain
+            		         //kal_gain = P_new_old*trantrans_obser_mod[3][1]
+            		         num[m][0] = num[m][0] + P_new_old[m][n]*trans_obser_mod[n][0]; //numerator of Kalman Gain
+            		         den_1[0][m] = den_1[0][m] + obser_mod[0][n]*P_new_old[n][m]; //Denominator part1 of Kalman Gain
             	        }
             	        den = den + den_1[0][m]*trans_obser_mod[m][0]; //Denominator part2 of Kalman Gain
                  }
