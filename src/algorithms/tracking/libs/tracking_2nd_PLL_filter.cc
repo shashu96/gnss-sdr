@@ -64,11 +64,9 @@ void Tracking_2nd_PLL_filter::initialize()
     d_old_carr_nco   = 0.0;
     d_old_carr_error = 0.0;
     long l=3;
-	//ele[3][3] = {{1.0/36.0,0.0,0.0},{0.0,1.0/4.0,0.0},{0.0,0.0,1.0}};
-
 
     /*
-     * Initialization of predicted, estimated and error matrix
+     * Initialization of predicted and error matrix
      */
     int i;
     int j;
@@ -123,7 +121,7 @@ float Tracking_2nd_PLL_filter::get_carrier_nco(float PLL_discriminator)
     return carr_nco;
 }
 
-float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, float d_fs_in)
+float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d_fs_in)
 {
     #define CN0_ESTIMATION_SAMPLES 20
 	long cn0_lin_hz;
@@ -148,19 +146,15 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, float 
 	est_out = kf_impl_alg(KF_discriminator,proc_cov_mat,x_new_old,P_new_old);
 	//est_out = kf_impl_alg(KF_discriminator,phas_noise_var,proc_cov,x_new_old,P_new_old);
 
-<<<<<<< HEAD
 	carr_nco = est_out;
-=======
-	carr_nco = **est_out;
->>>>>>> refs/remotes/origin/kf_filter_gsoc_2017
+
 	return carr_nco;
 }
 
 /*
  * Kalman Filter algorithm implementation
  */
-//float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double R, double Q, double x_new_old[3][1], double P_new_old[][3])
-float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, double x_new_old[3][1], double P_new_old[][3])
+float Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, double x_new_old[3][1], double P_new_old[][3])
 {
     long len = sizeof(error_signal);
     double kal_gain[3][1] = {{1},{1},{1}}; //column matrix
@@ -200,7 +194,6 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
     	    error[k][0] = error_signal - pred[0][k]; //error = y_k - y_k-1
 
 	        //wrapping
-	        //check for passing of error whether it is array or single value
             error[k][0] = wrapping_filter(error[k][0] , 200);
 
             /*
@@ -233,7 +226,6 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
                 }
 
             //wrapping
-            //check for passing of error whether it is array or single value
             for(i=0;i < 3; i++)
             {
                 x_new_new[i][0] = wrapping_filter(x_new_new[i][0],200);
@@ -272,8 +264,6 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
                 }
 
             //wrapping
-            //check for passing of error whether it is array or single value
-
             for(i=0; i<3; i++)
                 {
                     x_new_old[i][0] = wrapping_filter(x_new_old[i][0],200);
@@ -292,7 +282,6 @@ float** Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, dou
                 }
 
             //wrapping
-            //check for passing of error whether it is array or single value
             for(i=0; i<3; i++)
                 {
                     pred[i][k+1] = wrapping_filter(pred[i][k+1],200);
