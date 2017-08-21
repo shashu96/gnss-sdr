@@ -221,7 +221,6 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
             for(i = 0; i < 3; i++)
                 {
             	    x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error[k][0]);
-            	    //x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error_signal);
                 }
 
             //wrapping
