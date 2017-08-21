@@ -158,6 +158,11 @@ public:
     std::shared_ptr<InMemoryConfiguration> config;
     Gnss_Synchro gnss_synchro;
     size_t item_size;
+
+    double k_if                          = 0;
+    double pll_bw_hz                     = 0;
+    double dll_bw_hz                     = 0;
+    double early_late_space_chips        = 0;
 };
 
 
@@ -211,18 +216,28 @@ void GpsL1CADllKfTrackingTest::configure_receiver()
     gnss_synchro.System = 'G';
     std::string signal = "1C";
     signal.copy(gnss_synchro.Signal, 2, 0);
-    gnss_synchro.PRN = FLAGS_test_satellite_PRN;
+
+
+/************* CONFIGURATION PARAMETERS ***************/
+
+    gnss_synchro.PRN           = FLAGS_test_satellite_PRN;        // PRN satellite number
+    k_if                       = 0.0;                             // Intermediate frequency
+    pll_bw_hz                  = 30.0;                            // PLL bandwidth in Hz
+    dll_bw_hz                  = 2.0;                             // DLL bandwidth in Hz
+    early_late_space_chips     = 0.5;                             // Space between correlators
+
+/******************************************************/
 
     config->set_property("GNSS-SDR.internal_fs_hz", std::to_string(baseband_sampling_freq));
     // Set Tracking
     config->set_property("Tracking_1C.implementation", "GPS_L1_CA_DLL_KF_Tracking");
     config->set_property("Tracking_1C.item_type", "gr_complex");
-    config->set_property("Tracking_1C.if", "0");
+    config->set_property("Tracking_1C.if", std::to_string(k_if));
     config->set_property("Tracking_1C.dump", "true");
     config->set_property("Tracking_1C.dump_filename", "./tracking_ch_");
-    config->set_property("Tracking_1C.pll_bw_hz", "30.0");
-    config->set_property("Tracking_1C.dll_bw_hz", "2.0");
-    config->set_property("Tracking_1C.early_late_space_chips", "0.5");
+    config->set_property("Tracking_1C.pll_bw_hz", std::to_string(pll_bw_hz));
+    config->set_property("Tracking_1C.dll_bw_hz", std::to_string(dll_bw_hz));
+    config->set_property("Tracking_1C.early_late_space_chips", std::to_string(early_late_space_chips));
 }
 
 void GpsL1CADllKfTrackingTest::check_results_doppler(arma::vec true_time_s,
