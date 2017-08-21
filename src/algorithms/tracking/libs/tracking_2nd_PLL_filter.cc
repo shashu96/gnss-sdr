@@ -154,7 +154,7 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 /*
  * Kalman Filter algorithm implementation
  */
-float Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, double x_new_old[3][1], double P_new_old[][3])
+float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, double x_new_old[3][1], double P_new_old[][3])
 {
     long len = sizeof(error_signal);
     double kal_gain[3][1] = {{1},{1},{1}}; //column matrix
@@ -182,16 +182,15 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, doubl
     int P_new_new[3][3];
 
     float carr_nco;
-    carr_nco = d_old_carr_nco + (d_tau2_carr/d_tau1_carr)*(error_signal - d_old_carr_error) + (error_signal + d_old_carr_error) * (d_pdi_carr/(2*d_tau1_carr));
-    //carr_nco = d_old_carr_nco + (d_tau2_carr/d_tau1_carr)*(PLL_discriminator - d_old_carr_error) + PLL_discriminator * (d_pdi_carr/d_tau1_carr);
+    carr_nco = d_old_carr_nco + (d_tau2_carr/d_tau1_carr)*(KF_discriminator - d_old_carr_error) + (KF_discriminator + d_old_carr_error) * (d_pdi_carr/(2*d_tau1_carr));
     d_old_carr_nco   = carr_nco;
-    d_old_carr_error = error_signal;
+    d_old_carr_error = KF_discriminator;
 
     //for(k = 1; k <= len; k++)
         //{
 	        //Measurement prediction
             //error[k][0] = signal[k][0] - pred[0][k]; //error = y_k - y_k-1
-    	    error[k][0] = error_signal - pred[0][k]; //error = y_k - y_k-1
+    	    error[k][0] = KF_discriminator - pred[0][k]; //error = y_k - y_k-1
 
 	        //wrapping
             error[k][0] = wrapping_filter(error[k][0] , 200);
