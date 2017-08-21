@@ -123,7 +123,7 @@ float Tracking_2nd_PLL_filter::get_carrier_nco(float PLL_discriminator)
     return carr_nco;
 }
 
-float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d_fs_in)
+float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, float d_fs_in)
 {
     #define CN0_ESTIMATION_SAMPLES 20
 	long cn0_lin_hz;
@@ -148,7 +148,11 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 	est_out = kf_impl_alg(KF_discriminator,proc_cov_mat,x_new_old,P_new_old);
 	//est_out = kf_impl_alg(KF_discriminator,phas_noise_var,proc_cov,x_new_old,P_new_old);
 
+<<<<<<< HEAD
 	carr_nco = est_out;
+=======
+	carr_nco = **est_out;
+>>>>>>> refs/remotes/origin/kf_filter_gsoc_2017
 	return carr_nco;
 }
 
