@@ -63,20 +63,20 @@ void Tracking_2nd_PLL_filter::initialize()
     // carrier/Costas loop parameters
     d_old_carr_nco   = 0.0;
     d_old_carr_error = 0.0;
-    long l=3;
+    int l=3;
+    int i;
+    int j;
 
     /*
      * Initialization of predicted and error matrix
      */
-    int i;
-    int j;
     for(i = 0; i < 3; i++)
         {
             for(j = 0; j < l + 1; j++)
                 {
 	                pred[i][j] = 0;
-		        }
-	    }
+                }
+        }
 
     j = 0;
     for(i = 0; i < l; i++)
@@ -124,31 +124,31 @@ float Tracking_2nd_PLL_filter::get_carrier_nco(float PLL_discriminator)
 float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d_fs_in)
 {
     #define CN0_ESTIMATION_SAMPLES 20
-	long cn0_lin_hz;
-	double phas_noise_var;
-	double** proc_cov_mat;
-	double proc_cov;
-	float est_out;
-	float carr_nco;
+    long cn0_lin_hz;
+    double phas_noise_var;
+    double** proc_cov_mat;
+    double proc_cov;
+    float est_out;
+    float carr_nco;
     long d_ts_in_sec = 1/d_fs_in;
-	//double d_ts_in_sec = 1/d_fs_in;
-	cn0_lin_hz = pow(10,(CN0_ESTIMATION_SAMPLES/10));
+    //double d_ts_in_sec = 1/d_fs_in;
+    cn0_lin_hz = pow(10,(CN0_ESTIMATION_SAMPLES/10));
 
-	//Initialization
-	double x_new_old[3][1] = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
-	double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
+    //Initialization
+    double x_new_old[3][1] = {0 , 50*d_ts_in_sec , 100*pow(d_ts_in_sec,2)}; //predicted state
+    double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
 
-	//Phase noise variance
-	phas_noise_var = (d_fs_in/(8*GPS_PI*GPS_PI*cn0_lin_hz))*(1+(d_fs_in/2*cn0_lin_hz));
-	proc_cov_mat = cov_cal(ele); //process covariance matrix
+    //Phase noise variance
+    phas_noise_var = (d_fs_in/(8*GPS_PI*GPS_PI*cn0_lin_hz))*(1 + (d_fs_in/(2*cn0_lin_hz)));
+    proc_cov_mat = cov_cal(ele); //process covariance matrix
 
-	//Process begins here
-	est_out = kf_impl_alg(KF_discriminator,proc_cov_mat,x_new_old,P_new_old);
-	//est_out = kf_impl_alg(KF_discriminator,phas_noise_var,proc_cov,x_new_old,P_new_old);
+    //Process begins here
+    est_out = kf_impl_alg(KF_discriminator,proc_cov_mat,x_new_old,P_new_old);
+    //est_out = kf_impl_alg(KF_discriminator,phas_noise_var,proc_cov,x_new_old,P_new_old);
 
-	carr_nco = est_out;
+    carr_nco = est_out;
 
-	return carr_nco;
+    return carr_nco;
 }
 
 /*
@@ -157,7 +157,7 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, double x_new_old[3][1], double P_new_old[][3])
 {
     long len = sizeof(error_signal);
-    double kal_gain[3][1] = {{1},{1},{1}}; //column matrix
+    //double kal_gain[3][1] = {{1},{1},{1}}; //column matrix
     double kal_gain[3][1] = {{1.121817},{7.533759},{232.944295}}; //column matrix
     double x_new_new[3][1]; //column matrix
     double first[3][3];
@@ -188,14 +188,15 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
 
     //for(k = 1; k <= len; k++)
         //{
-	        //Measurement prediction
+            //Measurement prediction
             //error[k][0] = signal[k][0] - pred[0][k]; //error = y_k - y_k-1
     	    error[k][0] = KF_discriminator - pred[0][k]; //error = y_k - y_k-1
 
-	        //wrapping
+            //wrapping
             error[k][0] = wrapping_filter(error[k][0] , 200);
 
-            /*
+/****************Varying Kalman gain****************************
+
             //Mearurement update
             //Kalman Gain calculation
             for(m = 0; m < 3; m++) //limit of m not yet known
@@ -215,7 +216,7 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
             	    kal_gain[m][0] = num[m][0]/den; //Kalman Gain = numerator/denominator
                 }
 
-            */
+******************************************************************/
 
             //x_new_new = x_new_old + K*error(k);
             for(i = 0; i < 3; i++)
@@ -224,7 +225,7 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
                 }
 
             //wrapping
-            for(i=0;i < 3; i++)
+            for(i = 0; i < 3; i++)
             {
                 x_new_new[i][0] = wrapping_filter(x_new_new[i][0],200);
             }
@@ -247,7 +248,7 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
                             for(i = 0; i < 3; i++)
                                 {
                         	        P_new_new[m][n] += second[n][i] * P_new_old[i][n];
-                        	    }
+                                }
                         }
                 }
 
@@ -262,7 +263,7 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
                 }
 
             //wrapping
-            for(i=0; i<3; i++)
+            for(i = 0; i < 3; i++)
                 {
                     x_new_old[i][0] = wrapping_filter(x_new_old[i][0],200);
                 }
@@ -280,7 +281,7 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
                 }
 
             //wrapping
-            for(i=0; i<3; i++)
+            for(i = 0; i < 3; i++)
                 {
                     pred[i][k+1] = wrapping_filter(pred[i][k+1],200);
                 }
@@ -295,7 +296,7 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
             		            {
             		                P_new_old_fr[m][n] += stat_tran_mod[n][i] * P_new_new[i][n];
             		            }
-            		    }
+                        }
                 }
 
             for(m = 0; m < 3; m++)
@@ -305,7 +306,7 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
                             for(i = 0; i < 3; i++)
                                 {
                                     P_new_old[m][n] += P_new_old_fr[n][i] * trans_stat_tran_mod[i][n];
-                        	    }
+                                }
                             P_new_old[m][n] += Q[m][n];
                         }
                 }
@@ -314,7 +315,7 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
             //Final estimation
             for(i = 0; i < 3; i++)
                 {
-            	    est[i] =new float[1000];
+            	    est[i] = new float[1000];
             	    est[i][k] = x_new_new[i][0];
             	    //res += est[i][k];
                 }
@@ -327,16 +328,17 @@ double** Tracking_2nd_PLL_filter::cov_cal(double Qd[3][3])
 {
     double** Q = 0;
     Q = new double*[3];
-    int i,j;
+    int i;
+	int j;
 
-    for(i=0 ; i<3 ; i++)
+    for(i = 0; i < 3; i++)
         {
     	    Q[i] = new double[3];
-    	    for(j=0 ; j<3 ; j++)
-		        {
+    	    for(j = 0 ; j < 3 ; j++)
+                {
     	    	    Q[i][j] = 1.0e-14*Qd[i][j];
     	    	    //Q[i][j] = Qd[i][j];
-		        }
+                }
         }
     return Q;
 }
