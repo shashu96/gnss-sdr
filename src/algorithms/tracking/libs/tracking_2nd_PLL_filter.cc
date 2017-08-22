@@ -154,7 +154,7 @@ float Tracking_2nd_PLL_filter::get_carrier_kf_nco(float KF_discriminator, long d
 /*
  * Kalman Filter algorithm implementation
  */
-float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, double x_new_old[3][1], double P_new_old[][3])
+float Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, double x_new_old[3][1], double P_new_old[][3])
 {
     long len = sizeof(error_signal);
     //double kal_gain[3][1] = {{1},{1},{1}}; //column matrix
@@ -182,146 +182,143 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float KF_discriminator, double** Q, d
     int P_new_new[3][3];
 
     float carr_nco;
-    carr_nco = d_old_carr_nco + (d_tau2_carr/d_tau1_carr)*(KF_discriminator - d_old_carr_error) + (KF_discriminator + d_old_carr_error) * (d_pdi_carr/(2*d_tau1_carr));
+    carr_nco = d_old_carr_nco + (d_tau2_carr/d_tau1_carr)*(error_signal - d_old_carr_error) + (error_signal + d_old_carr_error) * (d_pdi_carr/(2*d_tau1_carr));
     d_old_carr_nco   = carr_nco;
-    d_old_carr_error = KF_discriminator;
+    d_old_carr_error = error_signal;
 
-    //for(k = 1; k <= len; k++)
-        //{
-            //Measurement prediction
-            //error[k][0] = signal[k][0] - pred[0][k]; //error = y_k - y_k-1
-    	    error[k][0] = KF_discriminator - pred[0][k]; //error = y_k - y_k-1
 
-            //wrapping
-            error[k][0] = wrapping_filter(error[k][0] , 200);
+    //Measurement prediction
+    //error[k][0] = signal[k][0] - pred[0][k]; //error = y_k - y_k-1
+    error[k][0] = carr_nco - pred[0][k]; //error = y_k - y_k-1
+
+    //wrapping
+    error[k][0] = wrapping_filter(error[k][0] , 200);
 
 /****************Varying Kalman gain****************************
 
-            //Mearurement update
-            //Kalman Gain calculation
-            for(m = 0; m < 3; m++) //limit of m not yet known
-                {
-            	    for(n = 0; n < 3; n++) //limit of n not yet known
-            	        {
-            		         //kal_gain = P_new_old*trantrans_obser_mod[3][1]
-            		         num[m][0] = num[m][0] + P_new_old[m][n]*trans_obser_mod[n][0]; //numerator of Kalman Gain
-            		         den_1[0][m] = den_1[0][m] + obser_mod[0][n]*P_new_old[n][m]; //Denominator part1 of Kalman Gain
-            	        }
-            	        den = den + den_1[0][m]*trans_obser_mod[m][0]; //Denominator part2 of Kalman Gain
-                 }
-             den = den + R;
+    //Mearurement update
+    //Kalman Gain calculation
+    for(m = 0; m < 3; m++) //limit of m not yet known
+        {
+            for(n = 0; n < 3; n++) //limit of n not yet known
+            	{
+            		 //kal_gain = P_new_old*trantrans_obser_mod[3][1]
+            		 num[m][0] = num[m][0] + P_new_old[m][n]*trans_obser_mod[n][0]; //numerator of Kalman Gain
+            		 den_1[0][m] = den_1[0][m] + obser_mod[0][n]*P_new_old[n][m]; //Denominator part1 of Kalman Gain
+            	}
+            den = den + den_1[0][m]*trans_obser_mod[m][0]; //Denominator part2 of Kalman Gain
+        }
+    den = den + R;
 
-            for(m = 0; m < 3; m++)
-                {
-            	    kal_gain[m][0] = num[m][0]/den; //Kalman Gain = numerator/denominator
-                }
+    for(m = 0; m < 3; m++)
+         {
+             kal_gain[m][0] = num[m][0]/den; //Kalman Gain = numerator/denominator
+         }
 
 ******************************************************************/
 
-            //x_new_new = x_new_old + K*error(k);
-            for(i = 0; i < 3; i++)
+    //x_new_new = x_new_old + K*error(k);
+    for(i = 0; i < 3; i++)
+        {
+            x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error[k][0]);
+        }
+
+    //wrapping
+    for(i = 0; i < 3; i++)
+        {
+            x_new_new[i][0] = wrapping_filter(x_new_new[i][0],200);
+        }
+
+    //Estimation of error covariance (P_new_new)
+    for(m = 0; m < 3; m++)
+        {
+            for(n = 0; n < 3; n++)
                 {
-            	    x_new_new[i][0] = x_new_old[i][0] + (kal_gain[i][0]*error[k][0]);
+                    first[m][n] = kal_gain[m][0]*obser_mod[0][n]; //K*H
+                    second[m][n] = eye[m][n] + first[m][n];//I-(K*H)
                 }
+        }
 
-            //wrapping
-            for(i = 0; i < 3; i++)
-            {
-                x_new_new[i][0] = wrapping_filter(x_new_new[i][0],200);
-            }
+    //P_new_new = (eye(3) - K*H)*P_new_old;
+    for(m = 0; m < 3; m++)
+        {
+                for(n = 0; n < 3; n++)
+                    {
+                        for(i = 0; i < 3; i++)
+                            {
+                        	    P_new_new[m][n] += second[n][i] * P_new_old[i][n];
+                            }
+                    }
+        }
 
-            //Estimation of error covariance (P_new_new)
-            for(m = 0; m < 3; m++)
+    //Prediction
+    //x_new_old = F*x_new_new;
+    for(m = 0; m < 3; m++)
+        {
+            for(n = 0; n < 3; n++)
                 {
-                    for(n = 0; n < 3; n++)
+                    x_new_old[m][0] += stat_tran_mod[m][n] * x_new_new[n][0];
+                }
+        }
+
+    //wrapping
+    for(i = 0; i < 3; i++)
+        {
+            x_new_old[i][0] = wrapping_filter(x_new_old[i][0],200);
+        }
+
+    //predicted measurement
+    //prediction(:,k+1) = H*x_new_old
+    for(i = 0; i < 3; i++)
+        {
+            sum += obser_mod[0][i] * x_new_old[i][0];
+        }
+
+    for(i = 0; i < 3; i++)
+        {
+            pred[i][k+1] = sum;
+        }
+
+    //wrapping
+    for(i = 0; i < 3; i++)
+        {
+            pred[i][k+1] = wrapping_filter(pred[i][k+1],200);
+        }
+
+    //Predicted error covariance
+    //P_new_old = F*P_new_new*F.' + Q
+    for(m = 0; m < 3; m++)
+        {
+            for(n = 0; n < 3; n++)
+                {
+                    for(i = 0; i < 3; i++)
+            		    {
+            		        P_new_old_fr[m][n] += stat_tran_mod[n][i] * P_new_new[i][n];
+            		    }
+                }
+        }
+
+    for(m = 0; m < 3; m++)
+        {
+            for(n = 0; n < 3; n++)
+                {
+                    for(i = 0; i < 3; i++)
                         {
-                            first[m][n] = kal_gain[m][0]*obser_mod[0][n]; //K*H
-                            second[m][n] = eye[m][n] + first[m][n];//I-(K*H)
+                            P_new_old[m][n] += P_new_old_fr[n][i] * trans_stat_tran_mod[i][n];
                         }
+                    P_new_old[m][n] += Q[m][n];
                 }
-
-            //P_new_new = (eye(3) - K*H)*P_new_old;
-            for(m = 0; m < 3; m++)
-                {
-                    for(n = 0; n < 3; n++)
-                        {
-                            for(i = 0; i < 3; i++)
-                                {
-                        	        P_new_new[m][n] += second[n][i] * P_new_old[i][n];
-                                }
-                        }
-                }
-
-            //Prediction
-            //x_new_old = F*x_new_new;
-            for(m = 0; m < 3; m++)
-                {
-                    for(n = 0; n < 3; n++)
-                        {
-                    	    x_new_old[m][0] += stat_tran_mod[m][n] * x_new_new[n][0];
-                        }
-                }
-
-            //wrapping
-            for(i = 0; i < 3; i++)
-                {
-                    x_new_old[i][0] = wrapping_filter(x_new_old[i][0],200);
-                }
-
-            //predicted measurement
-            //prediction(:,k+1) = H*x_new_old
-            for(i = 0; i < 3; i++)
-                {
-                    sum += obser_mod[0][i] * x_new_old[i][0];
-                }
-
-            for(i = 0; i < 3; i++)
-                {
-                    pred[i][k+1] = sum;
-                }
-
-            //wrapping
-            for(i = 0; i < 3; i++)
-                {
-                    pred[i][k+1] = wrapping_filter(pred[i][k+1],200);
-                }
-
-            //Predicted error covariance
-            //P_new_old = F*P_new_new*F.' + Q
-            for(m = 0; m < 3; m++)
-                {
-                    for(n = 0; n < 3; n++)
-            	        {
-            		        for(i = 0; i < 3; i++)
-            		            {
-            		                P_new_old_fr[m][n] += stat_tran_mod[n][i] * P_new_new[i][n];
-            		            }
-                        }
-                }
-
-            for(m = 0; m < 3; m++)
-                {
-                    for(n = 0; n < 3; n++)
-                        {
-                            for(i = 0; i < 3; i++)
-                                {
-                                    P_new_old[m][n] += P_new_old_fr[n][i] * trans_stat_tran_mod[i][n];
-                                }
-                            P_new_old[m][n] += Q[m][n];
-                        }
-                }
+        }
 
 
-            //Final estimation
-            for(i = 0; i < 3; i++)
-                {
-            	    est[i] = new float[1000];
-            	    est[i][k] = x_new_new[i][0];
-            	    //res += est[i][k];
-                }
-            //}
+    //Final estimation
+    for(i = 0; i < 3; i++)
+        {
+            est[i] = new float[1000];
+            est[i][k] = x_new_new[i][0];
+        }
+
     return est[0][1];
-	//return res;
 }
 
 double** Tracking_2nd_PLL_filter::cov_cal(double Qd[3][3])
