@@ -1,0 +1,7 @@
+Log file created at: 2017/08/21 10:49:04
+Running on machine: shravanshankar
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0821 10:49:04.481858  2960 gps_l1_ca_dll_kf_tracking_cc.cc:513] Tracking Channel set to 0
+I0821 10:49:04.482100  2960 gps_l1_ca_dll_kf_tracking_cc.cc:525] Tracking dump enabled on channel 0 Log file: ./tracking_ch_0.dat
+I0821 10:49:04.502534  2960 gps_l1_ca_dll_kf_tracking_cc.cc:257] Starting tracking of satellite GPS PRN 01 (Block IIF) on channel 0
+I0821 10:49:04.502555  2960 gps_l1_ca_dll_kf_tracking_cc.cc:263] PULL-IN Doppler [Hz]=-2583.86 Code Phase correction [samples]=2.6572e+06 PULL-IN Code Phase [samples]=72.5501
