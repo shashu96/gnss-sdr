@@ -1,11 +1,12 @@
 % /*!
-%  * \file gps_l1_ca_dll_pll_plot_sample.m
+%  * \file gps_l1_ca_dll_kf_plot_sample.m
 %  * \brief Read GNSS-SDR Tracking dump binary file using the provided
 %  function and plot some internal variables
 %  * \author Javier Arribas, 2011. jarribas(at)cttc.es
+%  *         Shashanka Joisa, 2017. shjoisa1996(at)gmail.com
 %  * -------------------------------------------------------------------------
 %  *
-%  * Copyright (C) 2010-2011  (see AUTHORS file for a list of contributors)
+%  * Copyright (C) 2010-2016  (see AUTHORS file for a list of contributors)
 %  *
 %  * GNSS-SDR is a software defined Global Navigation
 %  *          Satellite Systems receiver
@@ -29,12 +30,12 @@
 %  */ 
 close all;
 clear all;
-samplingFreq       = 64e6/16;     %[Hz]
+samplingFreq       = 64e6/16;     %4 MHz[Hz]
 channels=4;
 path='H:\working-gnss-sdr\gnss-sdr\install\';
 clear PRN_absolute_sample_start;
 for N=1:1:channels
-    tracking_log_path=[path 'tracking_ch_0' num2str(N-1) '.dat'];
+    tracking_log_path=[path 'tracking_ch' num2str(N-1) '.dat'];
     GNSS_tracking(N)= gps_l1_ca_dll_pll_read_tracking_dump(tracking_log_path);   
 end
 

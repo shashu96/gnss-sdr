@@ -86,6 +86,7 @@ for channelNr = channelList
         grid  (handles(1, 2));
         title (handles(1, 2), 'Bits of the navigation message');
         xlabel(handles(1, 2), 'Time (s)');
+        ylabel(handles(1, 2), 'Amplitude');
         axis  (handles(1, 2), 'tight');
 
         %----- PLL discriminator unfiltered--------------------------------
@@ -111,6 +112,7 @@ for channelNr = channelList
         grid  (handles(2, 2));
         title (handles(2, 2), 'Correlation results');
         xlabel(handles(2, 2), 'Time (s)');
+        ylabel(handles(2, 2), 'Amplitude');
         axis  (handles(2, 2), 'tight');
         
         hLegend = legend(handles(2, 2), '$\sqrt{I_{E}^2 + Q_{E}^2}$', ...
