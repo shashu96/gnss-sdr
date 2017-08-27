@@ -3,6 +3,7 @@
  * \brief Interface of a code DLL + carrier PLL tracking block
  * \author Carlos Aviles, 2010. carlos.avilesr(at)googlemail.com
  *         Javier Arribas, 2011. jarribas(at)cttc.es
+ *         Shashanka Joisa, 2017. shjoisa1996(at)gmail.com
  *
  * Code DLL + carrier PLL according to the algorithms described in:
  * K.Borre, D.M.Akos, N.Bertelsen, P.Rinder, and S.H.Jensen,

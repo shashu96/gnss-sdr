@@ -1,13 +1,13 @@
 /*!
  * \file gps_l1_ca_dll_kf_tracking_test.cc
- * \brief  This class implements a tracking test for Galileo_E5a_DLL_PLL_Tracking
+ * \brief  This class implements a tracking test for GPS_L1_CA_DLL_KF_Tracking
  *  implementation based on some input parameters.
  * \author Javier Arribas, 2017. jarribas(at)cttc.es
- *
+ *         Shashanka Joisa, 2017. shjoisa1996(at)gmail.com
  *
  * -------------------------------------------------------------------------
  *
- * Copyright (C) 2012-2017  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2012-2016  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver

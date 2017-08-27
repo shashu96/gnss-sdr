@@ -1,17 +1,19 @@
 /*!
  * \file tracking_2nd_PLL_filter.cc
- * \brief Implementation of a 2nd order PLL filter for tracking carrier loop.
+ * \brief Implementation of a  Kalman filter and 2nd order PLL filter for tracking
+ *  carrier loop.
  * \author Javier Arribas, 2011. jarribas(at)cttc.es
+ *         Shashanka Joisa, 2017. shjoisa1996@gmail.com
  *
- * Class that implements 2 order PLL filter for tracking carrier loop. The algorithm
- * is described in:
+ * Class that implements Kalman filter and 2 order PLL filter for tracking carrier
+ * loop. The algorithm is described in:
  * K.Borre, D.M.Akos, N.Bertelsen, P.Rinder, and S.~H.~Jensen, A Software-Defined
  * GPS and Galileo Receiver. A Single-Frequency Approach,
  * Birkhauser, 2007, Applied and Numerical Harmonic Analysis.
  *
  * -------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2015  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2016  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -175,7 +177,6 @@ float Tracking_2nd_PLL_filter::kf_impl_alg(float error_signal, double** Q, doubl
     est = new float*[3];
 
     int k=1;
-    //int p=1;
     int i;
     int m;
     int n;

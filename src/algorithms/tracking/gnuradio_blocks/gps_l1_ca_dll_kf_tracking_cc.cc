@@ -3,15 +3,16 @@
  * \brief Implementation of a code DLL + carrier PLL tracking block
  * \author Carlos Aviles, 2010. carlos.avilesr(at)googlemail.com
  *         Javier Arribas, 2011. jarribas(at)cttc.es
+ *         Shashanka Joisa, 2017. shjoisa1996(at)gmail.com
  *
- * Code DLL + carrier PLL according to the algorithms described in:
+ * Code DLL + carrier KF according to the algorithms described in:
  * [1] K.Borre, D.M.Akos, N.Bertelsen, P.Rinder, and S.H.Jensen,
  * A Software-Defined GPS and Galileo Receiver. A Single-Frequency
  * Approach, Birkhauser, 2007
  *
  * -------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2015  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2016  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver

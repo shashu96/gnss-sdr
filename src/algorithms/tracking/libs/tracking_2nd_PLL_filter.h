@@ -1,10 +1,12 @@
 /*!
  * \file tracking_2nd_PLL_filter.h
- * \brief Interface of a 2nd order PLL filter for carrier tracking loop
+ * \brief Interface of a Kalman filter and 2nd order PLL filter for carrier
+ *  tracking loop
  * \author Javier Arribas, 2011. jarribas(at)cttc.es
+ *         Shashanka Joisa, 2017. shjoisa1996(at)gmail.com
  *
- * Class that implements 2 order PLL filter for tracking carrier loop.
- * The algorithm is described in
+ * Class that implements Kalman filter and 2 order PLL filter for tracking
+ * carrier loop. The algorithm is described in
  * K.Borre, D.M.Akos, N.Bertelsen, P.Rinder, and S.H. Jensen,
  * A Software-Defined GPS and Galileo Receiver. A Single-Frequency Approach,
  * Birkhauser, 2007, Applied and Numerical Harmonic Analysis.
@@ -38,7 +40,7 @@
 #define GNSS_SDR_TRACKING_2ND_PLL_FILTER_H_
 
 /*!
- * \brief This class implements a 2nd order PLL filter for carrier tracking loop.
+ * \brief This class implements a Kalman filter and 2nd order PLL filter for carrier tracking loop.
  *
  * The algorithm is described in:
  * K.Borre, D.M.Akos, N.Bertelsen, P.Rinder, and S. H. Jensen, A Software-Defined GPS and Galileo Receiver. A Single-Frequency Approach,
@@ -57,18 +59,13 @@ private:
 
     float d_old_carr_error = 0;
     float d_old_carr_nco = 0;
-    double ele[3][3] = {{(1/36),0,0},{0,(1/4),0},{0,0,1}};
-	//double x_new_old[3][1];
-	//double P_new_old[3][3] = {{1/12,0,0} , {0,1,0} , {0,0,1}}; //predicted error covariance
 
-	//size of arrays not yet known
+    double ele[3][3] = {{(1/36),0,0},{0,(1/4),0},{0,0,1}};
+
+    //Kalman filter parameters
 	double error[50][50]={0};
 	double pred[50][50]={0};
-	//double stat_tran_mod[3][3] = {{1,1,0.5},{0,1,1},{0,0,1}}; //F = [1 1 1/2;0 1 1;0 0 1]
-	//double obser_mod[1][3] = {1,0,0}; //H=[1 0 0]
 	double trans_obser_mod[3][1] = {{1},{0},{0}}; //H'
-	//double trans_stat_tran_mod[3][3] = {{1,0,0},{1,1,0},{0.5,1,1}}; //F'
-	//double eye[3][3] = {{1,0,0,},{0,1,0},{0,0,1}}; //I identity matrix
 
     void calculate_lopp_coef(float* tau1,float* tau2, float lbw, float zeta, float k);
 
